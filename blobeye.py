@@ -1,4 +1,4 @@
-import cv2
+import cv2 
 import numpy as np
 import time
 import pygame
@@ -63,6 +63,7 @@ while True:
     # Read a frame from the webcam
     ret, frame = cap.read()
     
+    # fill the screen with a color to wipe away anything from last frame
     screen.fill("Black")
     
     # Apply background subtraction to the frame
@@ -93,15 +94,20 @@ while True:
                                             cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
         frame_with_blob = cv2.drawKeypoints(frame, [largest_blob], 0, (0, 0, 255),
                                             cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-        xbuff.pop(0)
+        
         
         h, w, c = frame.shape
         
         normalizedx = largest_blob.pt[0]*800/w
-        exxagx = largest_blob.pt[0]/w*1400-300
         
+        #exxaggered x - to make eye movement more dramatic
+        #width of eye picture 800. If it is exxagereted to 1400, then withdraw (1400-800)/2 = 300 to center
+        scale = 1400
+        exxagx = largest_blob.pt[0]/w*scale-((scale-800)/2)
+        
+        #Add values from found blob to circular buffer
+        xbuff.pop(0)
         xbuff.append(exxagx)
-        
         ybuff.pop(0)
         ybuff.append(700)
         #ybuff.append(largest_blob.pt[1]*600/480)
@@ -111,6 +117,7 @@ while True:
         frame_with_blob = frame
         fg_frame_with_blob = frame
         
+        #No blob found, add default values to circular buffer
         xbuff.pop(0)
         xbuff.append(250)
         
@@ -126,20 +133,17 @@ while True:
         if event.type == pygame.QUIT:
             running = False
 
-    # fill the screen with a color to wipe away anything from last frame
-    
+    #Calculate mean value of circular buffer to calculate a moving average - smooths eye motion
     xpos = sum(xbuff) / len(xbuff)
     ypos = sum(ybuff) / len(ybuff)
     
     draw_eye(200, 170, xpos, ypos)
     draw_eye(600, 170, xpos, ypos)
     
+    #Draw eye display!
     pygame.display.flip()
 
     clock.tick(60)  # limits FPS to 60
-    
-    #time.sleep(.1)
-    
     
     # Break the loop when 'q' is pressed
     if cv2.waitKey(1) & 0xFF == ord('q'):
