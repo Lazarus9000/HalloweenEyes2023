@@ -1,5 +1,5 @@
 # HalloweenEyes2023
 
-Code quality - Low
-Fun quality - High
+<p>Code quality - Low<br>
+Fun quality - High</p>
 
