@@ -37,25 +37,29 @@ detector = cv2.SimpleBlobDetector_create(params)
 # Initialize webcam
 cap = cv2.VideoCapture(0)
 
+# a good skull could be like https://funmauj.b-cdn.net/test/632975.jpg
+skullImg = pygame.image.load('skull.png')
+
 def draw_eye(eye_x, eye_y, lookx, looky):
     #mouse_x, mouse_y = pygame.mouse.get_pos()
 
     distance_x = lookx - eye_x
     distance_y = looky - eye_y
 
-    distance = min(math.sqrt(distance_x**2 + distance_y**2), 90)
+    distance = min(math.sqrt(distance_x**2 + distance_y**2), 40)
     angle = math.atan2(distance_y, distance_x)
 
     pupil_x = eye_x + (math.cos(angle) * distance)
     pupil_y = eye_y + (math.sin(angle) * distance)
     white = pygame.Color(255, 255, 255)
-    blue = pygame.Color(0, 0, 100)
+    red = pygame.Color(255, 0, 0)
     eyecoord = (eye_x, eye_y)
     pupilcoord = (pupil_x, pupil_y)
     
     #https://www.pygame.org/docs/ref/draw.html#pygame.draw.circle
-    pygame.draw.circle(screen, white, eyecoord, 150, 0) 
-    pygame.draw.circle(screen, blue, pupilcoord, 50, 0)
+    #pygame.draw.circle(screen, white, eyecoord, 150, 0) 
+    pygame.draw.circle(screen, white, pupilcoord, 22, 0)
+    pygame.draw.circle(screen, red, pupilcoord, 20, 0)
     #screen.draw.filled_circle((eye_x, eye_y), 50, color=(255, 255, 255))
     #screen.draw.filled_circle((pupil_x, pupil_y), 15, color=(0, 0, 100))
 
@@ -65,7 +69,7 @@ while True:
     
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("Black")
-    
+    screen.blit(skullImg, (155,0))
     # Apply background subtraction to the frame
     fg_mask = bg_subtractor.apply(frame)
     fg_mask = cv2.morphologyEx(fg_mask, cv2.MORPH_OPEN, kernel)
@@ -119,10 +123,10 @@ while True:
         
         #No blob found, add default values to circular buffer
         xbuff.pop(0)
-        xbuff.append(250)
+        xbuff.append(330)
         
         ybuff.pop(0)
-        ybuff.append(200)
+        ybuff.append(340)
 
     # Display the frame with the largest blob
     cv2.imshow('Largest Blob Detection with Background Subtraction', frame_with_blob)
@@ -137,8 +141,8 @@ while True:
     xpos = sum(xbuff) / len(xbuff)
     ypos = sum(ybuff) / len(ybuff)
     
-    draw_eye(200, 170, xpos, ypos)
-    draw_eye(600, 170, xpos, ypos)
+    draw_eye(320, 270, xpos, ypos)
+    draw_eye(470, 270, xpos, ypos)
     
     #Draw eye display!
     pygame.display.flip()
